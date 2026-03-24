@@ -1,10 +1,10 @@
 {
   "name": "claude-md-viewer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Beautiful Vollkorn markdown viewer with live reload for Claude Code workflows",
   "main": "index.js",
   "bin": {
-    "md-view": "index.js"
+    "view-md": "index.js"
   },
   "files": [
     "index.js",
