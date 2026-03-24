@@ -1,10 +1,10 @@
 {
-  "name": "md-view",
+  "name": "claude-md-viewer",
   "version": "1.0.0",
   "description": "Beautiful Vollkorn markdown viewer with live reload for Claude Code workflows",
   "main": "index.js",
   "bin": {
-    "md-view": "./index.js"
+    "md-view": "index.js"
   },
   "files": [
     "index.js",
@@ -14,6 +14,11 @@
   "engines": {
     "node": ">=18"
   },
-  "keywords": ["markdown", "viewer", "live-reload", "claude-code"],
+  "keywords": [
+    "markdown",
+    "viewer",
+    "live-reload",
+    "claude-code"
+  ],
   "license": "MIT"
 }
