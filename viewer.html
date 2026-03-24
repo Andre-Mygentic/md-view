@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>__FILENAME__</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        @font-face {
+            font-family: 'Vollkorn';
+            src: url('/fonts/Vollkorn-VariableFont_wght.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Vollkorn';
+            src: url('/fonts/Vollkorn-Italic-VariableFont_wght.ttf') format('truetype');
+            font-weight: 100 900;
+            font-style: italic;
+        }
+
+        html {
+            font-size: 19px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: "Vollkorn", serif;
+            font-weight: 350;
+            letter-spacing: 0.012em;
+            color: #333;
+            line-height: 1.6;
+            text-align: justify;
+            background: #fefefe;
+            margin: 0;
+        }
+
+        strong, b {
+            font-weight: 650;
+        }
+
+        #write {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 80px 60px 100px;
+        }
+
+        h1, h2, h3 {
+            text-align: center;
+            font-weight: 400;
+            color: #222;
+            line-height: 1.2;
+        }
+
+        h1 { font-size: 2.8em; margin-bottom: 0.8em; }
+
+        h2 {
+            font-size: 1.9em;
+            margin-top: 3em;
+            margin-bottom: 1.5em;
+            position: relative;
+        }
+
+        h2:after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 1px;
+            border-bottom: 1px solid #444;
+            margin: 0.8em auto 0;
+        }
+
+        h3 { font-style: italic; margin-top: 3.5em; margin-bottom: 1em; }
+
+        p { margin-bottom: 1.6em; }
+
+        ul {
+            list-style: square;
+            padding-left: 2em;
+            margin-bottom: 1.6em;
+        }
+
+        li { margin-bottom: 0.4em; }
+
+        em, i { font-style: italic; }
+
+        code {
+            font-family: ui-monospace, 'SF Mono', monospace;
+            font-size: 0.82em;
+            background: #f2f2f2;
+            padding: 0.1em 0.35em;
+            border-radius: 3px;
+        }
+
+        pre {
+            background: #f5f5f5;
+            border-left: 3px solid #ccc;
+            padding: 1.2em 1.4em;
+            overflow-x: auto;
+            margin-bottom: 1.6em;
+        }
+
+        pre code {
+            background: none;
+            padding: 0;
+            font-size: 0.78em;
+            line-height: 1.6;
+        }
+
+        blockquote {
+            border-left: 3px solid #ccc;
+            margin: 0 0 1.6em;
+            padding: 0.2em 1.4em;
+            color: #555;
+            font-style: italic;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 2.5em 0;
+        }
+
+        a { color: #444; }
+
+        #bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            background: rgba(254, 254, 254, 0.92);
+            border-bottom: 1px solid #e8e8e8;
+            padding: 6px 20px;
+            font-family: ui-monospace, 'SF Mono', monospace;
+            font-size: 11px;
+            color: #999;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        #bar-status {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: #4caf50;
+            flex-shrink: 0;
+        }
+
+        #bar-status.updating { background: #ff9800; }
+
+        @media print {
+            #bar { display: none; }
+            #write { padding-top: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="bar">
+    <div id="bar-status"></div>
+    <span id="bar-filename">__FILENAME__</span>
+</div>
+
+<div id="write"></div>
+
+<script>
+    const write = document.getElementById('write');
+    const status = document.getElementById('bar-status');
+
+    function render(md) {
+        write.innerHTML = marked.parse(md);
+    }
+
+    function load() {
+        fetch('/content')
+            .then(r => r.text())
+            .then(render)
+            .catch(() => {
+                write.innerHTML = '<p style="color:#999;text-align:center;padding-top:4em;">Could not load file.</p>';
+            });
+    }
+
+    // Initial load
+    load();
+
+    // Live reload via SSE
+    function connectSSE() {
+        const es = new EventSource('/events');
+        es.onmessage = (e) => {
+            if (e.data === 'reload') {
+                status.classList.add('updating');
+                load();
+                setTimeout(() => status.classList.remove('updating'), 400);
+            }
+        };
+        es.onerror = () => {
+            es.close();
+            setTimeout(connectSSE, 2000);
+        };
+    }
+
+    connectSSE();
+</script>
+</body>
+</html>
