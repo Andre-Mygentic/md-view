@@ -24,9 +24,32 @@ md-view path/to/file.md
 
 The browser opens automatically. Edit the file and the browser updates live. Reload the tab and the content is still there.
 
+From inside a Claude Code session, prefix with `!`:
+
+```bash
+! md-view path/to/file.md
+```
+
 ## Claude Code Integration
 
-Add to `~/.claude/CLAUDE.md`:
+There are three ways to open files from within Claude Code:
+
+**1. Natural language** — just tell Claude:
+> "open that file in the viewer"
+> "view the plan"
+> "preview README.md"
+
+**2. Slash command** — install the `/view-md` skill by copying `skills/view-md/` to `~/.claude/skills/`, then:
+```
+/view-md path/to/file.md
+```
+
+**3. Inline terminal** — run directly from the Claude Code prompt:
+```
+! md-view path/to/file.md
+```
+
+For natural language and slash command support, add to `~/.claude/CLAUDE.md`:
 
 ```
 ## Markdown Viewer
@@ -37,8 +60,6 @@ When asked to "open", "view", or "preview" a markdown file, run via Bash:
 If md-view is not found, use:
   npx md-view /absolute/path/to/file.md &
 ```
-
-Now you can tell Claude Code "open that plan in the viewer" and it just runs it.
 
 ## Features
 
