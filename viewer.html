@@ -123,6 +123,32 @@
 
         a { color: #444; }
 
+        .frontmatter {
+            font-family: ui-monospace, 'SF Mono', monospace;
+            font-size: 0.68em;
+            color: #888;
+            background: #f8f8f8;
+            border: 1px solid #e8e8e8;
+            border-radius: 4px;
+            padding: 0.7em 1em;
+            margin-bottom: 2.5em;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.15em 0.8em;
+            text-align: left;
+            line-height: 1.5;
+        }
+
+        .frontmatter-key {
+            color: #aaa;
+            white-space: nowrap;
+        }
+
+        .frontmatter-value {
+            color: #666;
+            word-break: break-word;
+        }
+
         #bar {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -167,8 +193,38 @@
     const write = document.getElementById('write');
     const status = document.getElementById('bar-status');
 
+    function parseFrontmatter(md) {
+        if (!md.startsWith('---')) return { frontmatter: null, body: md };
+        const end = md.indexOf('\n---', 3);
+        if (end === -1) return { frontmatter: null, body: md };
+        const raw = md.slice(4, end).trim();
+        const body = md.slice(end + 4).replace(/^\n/, '');
+        const fields = [];
+        let current = null;
+        for (const line of raw.split('\n')) {
+            const kv = line.match(/^([a-zA-Z_][a-zA-Z0-9_-]*):\s*(.*)/);
+            if (kv) {
+                current = { key: kv[1], value: kv[2] };
+                fields.push(current);
+            } else if (current && line.match(/^\s+/)) {
+                current.value += (current.value ? ' ' : '') + line.trim();
+            }
+        }
+        return { frontmatter: fields, body };
+    }
+
     function render(md) {
-        write.innerHTML = marked.parse(md);
+        const { frontmatter, body } = parseFrontmatter(md);
+        let html = '';
+        if (frontmatter && frontmatter.length) {
+            html += '<div class="frontmatter">';
+            for (const { key, value } of frontmatter) {
+                html += `<span class="frontmatter-key">${key}</span><span class="frontmatter-value">${value}</span>`;
+            }
+            html += '</div>';
+        }
+        html += marked.parse(body);
+        write.innerHTML = html;
     }
 
     function load() {
